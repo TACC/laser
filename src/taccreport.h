@@ -11,6 +11,11 @@
  *   
  *******************************************************************/
 
+#ifndef TACCREPORT_H
+#define TACCREPORT_H
+#include <time.h>
+
+
 // EVENTTYPE DEFINES
 #define RPT_EVENT_BASIC 0
 #define RPT_EVENT_IMAGE 1
@@ -37,6 +42,7 @@ typedef struct {
   struct {
     char *title;     //Title for this report
     char **authors;  //Authors
+    int numauths;
     char *abstract;       //A brief description of what the job generating this report is doing
     unsigned long jobID;  //Batch ID from the scheduler
     char *invocation;     //Shell invocation line for the job generating this report
@@ -44,7 +50,8 @@ typedef struct {
     time_t walltime;      //Time requested for job
   } header;
 
-  event_type *events;     //The actual events that will be in the report
+  event_type **events;     //The actual events that will be in the report
+  int numevents;
 
 } report_type;
 
@@ -105,3 +112,4 @@ event_type *createEvent(char *title, char *desc, short etype, char *data);
  *
  *******************************************************************/
 void generateReport(report_type *report);
+#endif
