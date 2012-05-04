@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-report_type *createreport(char *fname, short ftype, char *ftemplate, char *title, char *abstract, char **authors, int numauths) {
+report_type *createReport(char *fname, short ftype, char *ftemplate, char *title, char *abstract, char **authors, int numauths) {
   report_type *rpt = (report_type*)malloc(sizeof(report_type));
   
   rpt->filename = (char*)malloc(sizeof(char)*(strlen(fname)+1));
@@ -10,8 +10,12 @@ report_type *createreport(char *fname, short ftype, char *ftemplate, char *title
 
   rpt->filetype = ftype;
 
-  rpt->filetplate = (char*)malloc(sizeof(char)*(strlen(ftemplate)+1));
-  strcpy(rpt->filetplate, ftemplate);
+  if(ftemplate) {
+    rpt->filetplate = (char*)malloc(sizeof(char)*(strlen(ftemplate)+1));
+    strcpy(rpt->filetplate, ftemplate);
+  } else {
+    rpt->filetplate = ftemplate;
+  }
 
   rpt->header.title = (char*)malloc(sizeof(char)*(strlen(title)+1));
   strcpy(rpt->header.title, title);
@@ -26,6 +30,13 @@ report_type *createreport(char *fname, short ftype, char *ftemplate, char *title
     strcpy(rpt->header.authors[i], authors[i]);
   }
   rpt->header.numauths = numauths;
+
+  //rpt->header.jobID = atoi(getenv("JOB_ID"));
+
+  //rpt->header.invocation = malloc(strlen(getenv("REQUEST"))+1);
+  //strcpy(rpt->header.invocation, getenv("REQUEST"));
+
+  //rpt->header.NP = atoi(getenv("NSLOTS"));
 
   rpt->events = NULL;
   rpt->numevents = 0;

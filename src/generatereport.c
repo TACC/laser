@@ -1,12 +1,14 @@
 #include "taccreport.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 void generateReport(report_type *report) {
   FILE *fp, *tp;
   fp = fopen(report->filename, "w");
   char line[1024];
-  int i;
+  int i, j, cols, inbold;
+  char buf[128];
 
   if(fp) {
     if(report->filetplate) {
@@ -14,7 +16,7 @@ void generateReport(report_type *report) {
       tp = fopen(report->filetplate, "r");
     } else {
       //Default LaTeX template
-      tp = fopen("default.tpl", "r");
+      //tp = fopen("default.tpl", "r");
     }
 
 
@@ -26,12 +28,20 @@ void generateReport(report_type *report) {
       case RPT_OUTPUT_TEX: //Output a LaTeX file or generated PDF
       case RPT_OUTPUT_PDF:
         //Print the LaTex documentclass header
-        fprintf(fp, "\\documentclass{article}\n\\usepackage{authblk}\n");
+        fprintf(fp, "\\documentclass{article}\n\\usepackage{authblk}\n\\usepackage{graphicx}\n");
         
         //Generate the title and the authorlist
         fprintf(fp, "\\title{%s}\n", report->header.title);
-        for(i=0; i<report->header.numauths; i++)
-          fprintf(fp, "\\author{%s}\n", report->header.authors[i]);
+        fprintf(fp, "\\author{");
+        for(i=0; i<report->header.numauths; i++) {
+          if(i > 0)
+            if(i == report->header.numauths-1)
+              fprintf(fp, ", and ");
+            else 
+              fprintf(fp, ", ");
+          fprintf(fp, "%s", report->header.authors[i]);
+        }
+        fprintf(fp, "}\n");
         
         //Begin the document, write the title and authorlist
         fprintf(fp, "\\begin{document}\n\\maketitle\n");
@@ -40,18 +50,71 @@ void generateReport(report_type *report) {
         fprintf(fp, "\\begin{abstract}\n%s\n\\end{abstract}\n", report->header.abstract);
 
         //Write the submission characteristics section
-        fprintf(fp, "\\section{Job Information}\n");
-        fprintf(fp, "JobID: %ld\n\n", report->header.jobID);
-        fprintf(fp, "Call-line: %s\n\n", report->header.invocation);
-        fprintf(fp, "Num Procs: %d\n\n", report->header.NP);
-        fprintf(fp, "Walltime: %ld seconds\n\n", report->header.walltime);
+        fprintf(fp, "{\\bf Submission information:}\n\n");
+        fprintf(fp, "\\begin{tabular}{|c|c|}\n\\hline\n");
+        fprintf(fp, "JobID & %ld\\\\ \\hline\n", report->header.jobID);
+        fprintf(fp, "Call-line & %s\\\\ \\hline\n", report->header.invocation);
+        fprintf(fp, "Num Procs & %d\\\\ \\hline\n", report->header.NP);
+        fprintf(fp, "Walltime & %ld secs.\\\\ \\hline\n", report->header.walltime);
+        fprintf(fp, "\\end{tabular}\n\n");
+
+        //For each event, create a section with the associated information
+        for(i=0; i<report->numevents; i++) {
+          strftime(buf, 127, "%Y-%m-%d %H:%M:%S", localtime(&(report->events[i]->generated)));
+          fprintf(fp, "\\section{%s {\\small (Generated at %s)}}\n", report->events[i]->title,buf);
+          switch(report->events[i]->eventtype) {
+            case RPT_EVENT_BASIC:
+              fprintf(fp, "%s\n\n%s\n\n", report->events[i]->desc, report->events[i]->data);
+              break;
+            case RPT_EVENT_IMAGE:
+              fprintf(fp, "%s\n\n", report->events[i]->desc);
+              //fprintf(fp, "\\begin{figure}\n");
+              fprintf(fp, "\\includegraphics[width=.8\\columnwidth]{%s}\n", report->events[i]->data);
+              //fprintf(fp, "\\caption{%s}\n", report->events[i]->desc);
+              //fprintf(fp, "\\end{figure}\n\n");
+              break;
+            case RPT_EVENT_TABLE:
+              cols=0;
+              inbold=0;
+              for(j=0; report->events[i]->data[j] != ';'; j++) if(report->events[i]->data[j] == ',') cols++;
+              fprintf(fp, "%s\n\n\\begin{tabular}{|c", report->events[i]->desc);
+              for(j=1; j<=cols; j++) fprintf(fp, "|c");
+              fprintf(fp, "|}\\hline\n");
+              for(j=0; j<strlen(report->events[i]->data); j++) 
+                switch(report->events[i]->data[j]) {
+                  case '*':
+                    fprintf(fp, "{\\bf ");
+                    inbold = 1;
+                    break;
+                  case ',':
+                    if(inbold) {
+                      fprintf(fp, "}");
+                      inbold=0;
+                    }
+                    fprintf(fp, " & ");
+                    break;
+                  case ';':
+                    if(inbold) {
+                      fprintf(fp, "}");
+                      inbold=0;
+                    }
+                    fprintf(fp, "\\\\ \\hline\n");
+                    break;
+                  default:
+                    fprintf(fp, "%c", report->events[i]->data[j]);
+                    break;
+                };
+              fprintf(fp, "\\end{tabular}\n\n");
+              break;
+          };
+        }
 
         //End the document
         fprintf(fp, "\\end{document}");
         break;
     };
   }
-  fclose(tp);
+  //fclose(tp);
   fclose(fp);
 
   //Clean up report memory

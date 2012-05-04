@@ -67,11 +67,12 @@ typedef struct {
  *               title - Title of the report
  *            abstract - Description of the report
  *             authors - List of author/contributor/researcher names
+ *            numauths - Number of authors
  *
  *   Outputs: Report object pointer (report_type *)
  *
  *******************************************************************/
-report_type *createReport(char *fname, short ftype, char *ftemplate, char *title, char *abstract, char **authors);
+report_type *createReport(char *fname, short ftype, char *ftemplate, char *title, char *abstract, char **authors, int numauths);
 
 /********************************************************************
  *
