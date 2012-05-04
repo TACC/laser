@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "taccreport.h"
+#include "laser.h"
 
 int main(int argc, char **argv) {
 
@@ -9,8 +9,8 @@ int main(int argc, char **argv) {
   authors[1] = "John Q. Public"; 
   authors[2] = "James T. Kirk";
 
-  report_type *rpt = createReport("foo.tex", RPT_OUTPUT_TEX, NULL, "TACC In-Job Report Generation Library Test", 
-                                  "I am testing the new TACC Report Generation Library, written by Luke Wilson(lwilson@tacc.utexas.edu) and Carlos Rosales(carlos@tacc.utexas.edu).", authors, 3);
+  report_type *rpt = createReport("foo.tex", RPT_OUTPUT_TEX, NULL, "LASER: Library for Automated Simulation Event Reporting", 
+                                  "I am testing LASER, written by Luke Wilson(lwilson@tacc.utexas.edu) and Carlos Rosales(carlos@tacc.utexas.edu).", authors, 3);
 
   event_type *evt = createEvent("Basic Event", "This is a basic event", RPT_EVENT_BASIC, "This is an example basic event. Basic events are simply text blobs describing something of note.");
 

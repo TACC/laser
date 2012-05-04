@@ -1,4 +1,4 @@
-TACC In-Job Reporting Library (libtaccreport)
+LASER: Library for Automated Simulation Event Reporting
 
 Authors
 -------
@@ -7,6 +7,6 @@ Carlos Rosales  (carlos@tacc.utexas.edu)
 
 Copyright (c) The University of Texas at Austin
 
-libtaccreport provides a means of performing in-situ analysis of interesting
-scientific or computational events during job execution, and generating
-a summary document of said events at the end of the job.
+LASER provides a means of performing analysis and reporting of 
+interesting scientific or computational events during job execution, 
+and generating a summary document of said events at the end of the job.

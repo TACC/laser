@@ -2,11 +2,11 @@ OBJS = src/createreport.o src/createevent.o src/addevent.o src/generatereport.o
 
 static: $(OBJS)
 	mkdir -p lib
-	ar rcs lib/libtaccreport.a $(OBJS)
+	ar rcs lib/libaser.a $(OBJS)
 
 dynamic: $(OBJS)
 	mkdir -p lib
-	gcc -shared -Wl,-soname,lib/libtaccreport.so.1 -o lib/libtaccreport.so.1.0 $(OBJS)
+	gcc -shared -Wl,-soname,lib/libaser.so.1 -o lib/libaser.so.1.0 $(OBJS)
 
 all: static dynamic
 
