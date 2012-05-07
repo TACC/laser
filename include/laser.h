@@ -17,14 +17,24 @@
 
 
 // EVENTTYPE DEFINES
-#define RPT_EVENT_BASIC 0
-#define RPT_EVENT_IMAGE 1
-#define RPT_EVENT_TABLE 2
+#define LASER_EVENT_BASIC 0
+#define LASER_EVENT_IMAGE 1
+#define LASER_EVENT_TABLE 2
 
 // FILETYPE DEFINES
-#define RPT_OUTPUT_PDF 0
-#define RPT_OUTPUT_TXT 1
-#define RPT_OUTPUT_TEX 2
+#define LASER_OUTPUT_PDF 0
+#define LASER_OUTPUT_TXT 1
+#define LASER_OUTPUT_TEX 2
+
+// AGGREGATOR OPTIONS
+#define LASER_AGG_COUNT  1
+#define LASER_AGG_MEAN   2
+#define LASER_AGG_MEDIAN 4
+#define LASER_AGG_MODE   8
+#define LASER_AGG_MIN    16
+#define LASER_AGG_MAX    32
+#define LASER_AGG_VAR    64
+#define LASER_AGG_CUSTOM 128
 
 typedef struct {
   char *title;            //Title for the event to be generated
@@ -32,7 +42,7 @@ typedef struct {
   time_t generated;       //Time the event was generated (UNIX epcoh)
   short eventtype;        //Type of event (defines provided above)
   char *data;             //String containting the event specifics
-} event_type;
+} laser_event;
 
 typedef struct {
   char *filename;    //Name of the file to be generated
@@ -50,11 +60,17 @@ typedef struct {
     time_t walltime;      //Time requested for job
   } header;
 
-  event_type **events;     //The actual events that will be in the report
+  laser_event **events;     //The actual events that will be in the report
   int numevents;
 
-} report_type;
+} laser_report;
 
+typedef struct {
+  short options;
+  unsigned long count;
+  double values[7];
+  double(*custom)(double, double, unsigned long);
+} laser_aggregate;
 
 /********************************************************************
  *
@@ -72,7 +88,7 @@ typedef struct {
  *   Outputs: Report object pointer (report_type *)
  *
  *******************************************************************/
-report_type *createReport(char *fname, short ftype, char *ftemplate, char *title, char *abstract, char **authors, int numauths);
+laser_report *createReport(char *fname, short ftype, char *ftemplate, char *title, char *abstract, char **authors, int numauths);
 
 /********************************************************************
  *
@@ -81,13 +97,13 @@ report_type *createReport(char *fname, short ftype, char *ftemplate, char *title
  *
  *   Inputs: title - Name for the event
  *            desc - Description of the event
- *           etype - Type of event to create (Use RPT defines)
+ *           etype - Type of event to create (Use LASER defines)
  *            data - String containting the event specifics
  *
  *   Outputs: Event object pointer (event_type *)
  *
  *******************************************************************/
-event_type *createEvent(char *title, char *desc, short etype, char *data);
+laser_event *createEvent(char *title, char *desc, short etype, char *data);
 
 /********************************************************************
  *
@@ -100,7 +116,46 @@ event_type *createEvent(char *title, char *desc, short etype, char *data);
  *   Outputs: None
  *
  *******************************************************************/
- void addEvent(report_type *report, event_type *event);
+void addEvent(laser_report *report, laser_event *event);
+
+
+/********************************************************************
+ *
+ *   FUNCTION createAggregator
+ *   Create an aggregator object for collecting statistics
+ *
+ *   Inputs: options - Bitwise OR of desired statistics to collect
+ *            custom - Function pointer for custom statistics
+ *
+ *   Outputs: Aggregate object pointer (laser_aggregate *)
+ *
+ *******************************************************************/
+laser_aggregate *createAggregator(short options, double(*custom)(double, double, unsigned long));
+
+/********************************************************************
+ *
+ *   FUNCTION aggregate
+ *   Place a new value into an aggregator object
+ *
+ *   Inputs: aggregator - Pointer to aggregate object
+ *                  val - Value to be aggregated
+ *
+ *   Outputs: None
+ *
+ *******************************************************************/
+void aggregate(laser_aggregate *aggregator, double val);
+
+/********************************************************************
+ *   FUNCTION createAggregateEvent
+ *   Generate an event from the current state of an aggregator
+ *
+ *   Inputs: aggregator - Pointer to aggregate object
+ *                title - Name for the event
+ *                 desc - Description of the event
+ *
+ *   Outputs: Event object pointer (laser_event *)
+ *******************************************************************/
+laser_event *createAggregateEvent(laser_aggregate *aggregator, char *title, char *desc);
 
 /********************************************************************
  *
@@ -112,5 +167,5 @@ event_type *createEvent(char *title, char *desc, short etype, char *data);
  *   Outputs: None
  *
  *******************************************************************/
-void generateReport(report_type *report);
+void generateReport(laser_report *report);
 #endif

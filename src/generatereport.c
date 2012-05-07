@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-void generateReport(report_type *report) {
+void generateReport(laser_report *report) {
   FILE *fp, *tp;
   fp = fopen(report->filename, "w");
   char line[1024];
@@ -22,11 +22,11 @@ void generateReport(report_type *report) {
 
 
     switch (report->filetype) {
-      case RPT_OUTPUT_TXT: //Output a plain text file
+      case LASER_OUTPUT_TXT: //Output a plain text file
         
         break;
-      case RPT_OUTPUT_TEX: //Output a LaTeX file or generated PDF
-      case RPT_OUTPUT_PDF:
+      case LASER_OUTPUT_TEX: //Output a LaTeX file or generated PDF
+      case LASER_OUTPUT_PDF:
         //Print the LaTex documentclass header
         fprintf(fp, "\\documentclass{article}\n\\usepackage{authblk}\n\\usepackage{graphicx}\n");
         
@@ -63,17 +63,17 @@ void generateReport(report_type *report) {
           strftime(buf, 127, "%Y-%m-%d %H:%M:%S", localtime(&(report->events[i]->generated)));
           fprintf(fp, "\\section{%s {\\small (Generated at %s)}}\n", report->events[i]->title,buf);
           switch(report->events[i]->eventtype) {
-            case RPT_EVENT_BASIC:
+            case LASER_EVENT_BASIC:
               fprintf(fp, "%s\n\n%s\n\n", report->events[i]->desc, report->events[i]->data);
               break;
-            case RPT_EVENT_IMAGE:
+            case LASER_EVENT_IMAGE:
               fprintf(fp, "%s\n\n", report->events[i]->desc);
               //fprintf(fp, "\\begin{figure}\n");
               fprintf(fp, "\\includegraphics[width=.8\\columnwidth]{%s}\n", report->events[i]->data);
               //fprintf(fp, "\\caption{%s}\n", report->events[i]->desc);
               //fprintf(fp, "\\end{figure}\n\n");
               break;
-            case RPT_EVENT_TABLE:
+            case LASER_EVENT_TABLE:
               cols=0;
               inbold=0;
               for(j=0; report->events[i]->data[j] != ';'; j++) if(report->events[i]->data[j] == ',') cols++;

@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-report_type *createReport(char *fname, short ftype, char *ftemplate, char *title, char *abstract, char **authors, int numauths) {
-  report_type *rpt = (report_type*)malloc(sizeof(report_type));
+laser_report *createReport(char *fname, short ftype, char *ftemplate, char *title, char *abstract, char **authors, int numauths) {
+  laser_report *rpt = (laser_report*)malloc(sizeof(laser_report));
   
   rpt->filename = (char*)malloc(sizeof(char)*(strlen(fname)+1));
   strcpy(rpt->filename, fname);

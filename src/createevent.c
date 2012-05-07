@@ -3,8 +3,8 @@
 #include <string.h>
 #include <time.h>
 
-event_type *createEvent(char *title, char *desc, short etype, char *data) {
-  event_type *evt = (event_type*)malloc(sizeof(event_type));
+laser_event *createEvent(char *title, char *desc, short etype, char *data) {
+  laser_event *evt = (laser_event*)malloc(sizeof(laser_event));
 
   evt->title = (char*)malloc(strlen(title)+1);
   strcpy(evt->title, title);
