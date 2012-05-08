@@ -28,13 +28,12 @@
 
 // AGGREGATOR OPTIONS
 #define LASER_AGG_COUNT  1
-#define LASER_AGG_MEAN   2
-#define LASER_AGG_MEDIAN 4
-#define LASER_AGG_MODE   8
-#define LASER_AGG_MIN    16
-#define LASER_AGG_MAX    32
-#define LASER_AGG_VAR    64
-#define LASER_AGG_CUSTOM 128
+#define LASER_AGG_SUM    2
+#define LASER_AGG_MEAN   4
+#define LASER_AGG_MIN    8
+#define LASER_AGG_MAX    16
+#define LASER_AGG_VAR    32
+#define LASER_AGG_CUSTOM 64
 
 typedef struct {
   char *title;            //Title for the event to be generated
@@ -124,13 +123,12 @@ void addEvent(laser_report *report, laser_event *event);
  *   FUNCTION createReduction
  *   Create a reduction object for collecting statistics
  *
- *   Inputs: options - Bitwise OR of desired statistics to collect
- *            custom - Function pointer for custom statistics
+ *   Inputs: custom - Function pointer for custom statistics
  *
  *   Outputs: Reduction object pointer (laser_reduction *)
  *
  *******************************************************************/
-laser_reduction *createReduction(short options, double(*custom)(double, double, unsigned long));
+laser_reduction *createReduction(double(*custom)(double, double, unsigned long));
 
 /********************************************************************
  *
@@ -150,12 +148,13 @@ void reduce(laser_reduction *reducer, double val);
  *   Generate an event from the current state of a reducer
  *
  *   Inputs: aggregator - Pointer to reduction object
+ *              options - Statistics to report in this event
  *                title - Name for the event
  *                 desc - Description of the event
  *
  *   Outputs: Event object pointer (laser_event *)
  *******************************************************************/
-laser_event *createReductionEvent(laser_reduction *reducer, char *title, char *desc);
+laser_event *createReductionEvent(laser_reduction *reducer, short options, char *title, char *desc);
 
 /********************************************************************
  *
