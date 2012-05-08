@@ -70,7 +70,7 @@ typedef struct {
   unsigned long count;
   double values[7];
   double(*custom)(double, double, unsigned long);
-} laser_aggregate;
+} laser_reduction;
 
 /********************************************************************
  *
@@ -78,7 +78,7 @@ typedef struct {
  *   Create a report object
  *
  *   Inputs:     fname - String containing the filename to generate
- *               ftype - Type of file to create (PDF, TXT, TEX) (Use RPT_OUTPUT defines)
+ *               ftype - Type of file to create (PDF, TXT, TEX) (Use LASER_OUTPUT defines)
  *           ftemplate - LaTeX template file to use (optional, for default use NULL)
  *               title - Title of the report
  *            abstract - Description of the report
@@ -121,41 +121,41 @@ void addEvent(laser_report *report, laser_event *event);
 
 /********************************************************************
  *
- *   FUNCTION createAggregator
- *   Create an aggregator object for collecting statistics
+ *   FUNCTION createReduction
+ *   Create a reduction object for collecting statistics
  *
  *   Inputs: options - Bitwise OR of desired statistics to collect
  *            custom - Function pointer for custom statistics
  *
- *   Outputs: Aggregate object pointer (laser_aggregate *)
+ *   Outputs: Reduction object pointer (laser_reduction *)
  *
  *******************************************************************/
-laser_aggregate *createAggregator(short options, double(*custom)(double, double, unsigned long));
+laser_reduction *createReduction(short options, double(*custom)(double, double, unsigned long));
 
 /********************************************************************
  *
- *   FUNCTION aggregate
- *   Place a new value into an aggregator object
+ *   FUNCTION reduce
+ *   Place a new value into a reduction object
  *
- *   Inputs: aggregator - Pointer to aggregate object
- *                  val - Value to be aggregated
+ *   Inputs: reducer - Pointer to aggregate object
+ *               val - Value to be aggregated
  *
  *   Outputs: None
  *
  *******************************************************************/
-void aggregate(laser_aggregate *aggregator, double val);
+void reduce(laser_reduction *reducer, double val);
 
 /********************************************************************
- *   FUNCTION createAggregateEvent
- *   Generate an event from the current state of an aggregator
+ *   FUNCTION createReductionEvent
+ *   Generate an event from the current state of a reducer
  *
- *   Inputs: aggregator - Pointer to aggregate object
+ *   Inputs: aggregator - Pointer to reduction object
  *                title - Name for the event
  *                 desc - Description of the event
  *
  *   Outputs: Event object pointer (laser_event *)
  *******************************************************************/
-laser_event *createAggregateEvent(laser_aggregate *aggregator, char *title, char *desc);
+laser_event *createReductionEvent(laser_reduction *reducer, char *title, char *desc);
 
 /********************************************************************
  *
